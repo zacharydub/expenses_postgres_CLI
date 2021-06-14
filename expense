@@ -4,6 +4,11 @@ const PROCESS = require('process');
 const READLINE = require('readline');
 const { Client } = require('pg');
 
+function logAndExit(err) {
+  console.log(err);
+  process.exit(1);
+};
+
 class ExpenseData {
   constructor() {
     this.client = new Client({ database: 'expenses' });
@@ -44,10 +49,9 @@ class ExpenseData {
     let queryText = 'SELECT * FROM expenses WHERE memo ILIKE $1';
 
     let res = await this.client.query(queryText, [`%${searchTerm}%`]).catch(err => logAndExit(err));
-
     this.displayCount(res.rowCount)
     this.displayExpenses(res)
-    this.displayTotal(searchTerm)
+    this.displayTotal(res)
 
     await this.client.end().catch(err => logAndExit(err));
   }
